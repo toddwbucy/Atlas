@@ -90,3 +90,32 @@ class TestAtlasMAGModel:
             ids = torch.randint(0, config.vocab_size, (B, 8))
             out = model(ids)
             assert out['logits'].shape[0] == B
+
+    def test_gradient_checkpointing(self, config):
+        """Gradient checkpointing should produce same loss and valid gradients."""
+        torch.manual_seed(42)
+        model = AtlasMAGModel(config)
+        input_ids = torch.randint(0, config.vocab_size, (1, 16))
+
+        # Forward/backward without checkpointing
+        out1 = model(input_ids, labels=input_ids)
+        out1['loss'].backward()
+        grads_without = {n: p.grad.clone() for n, p in model.named_parameters()
+                         if p.grad is not None}
+        model.zero_grad()
+
+        # Enable checkpointing and re-run
+        model.enable_gradient_checkpointing()
+        out2 = model(input_ids, labels=input_ids)
+        out2['loss'].backward()
+
+        # Loss should match
+        torch.testing.assert_close(out1['loss'], out2['loss'])
+
+        # Gradients should match (within tolerance for recomputation)
+        for name, grad in grads_without.items():
+            param = dict(model.named_parameters())[name]
+            assert param.grad is not None, \
+                f"{name}: gradient lost under checkpointing"
+            torch.testing.assert_close(param.grad, grad, atol=1e-5, rtol=1e-5,
+                                       msg=f"{name}: gradient differs under checkpointing")

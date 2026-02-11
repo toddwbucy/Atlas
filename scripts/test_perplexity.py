@@ -10,10 +10,11 @@ From HADES:
 
 import argparse
 import math
+import sys
 
 import torch
 
-from atlas.config import AtlasConfig, tiny_config, full_config
+from atlas.config import tiny_config, full_config
 from atlas.model import AtlasMAGModel
 
 
@@ -66,9 +67,25 @@ def test_model(args):
     elif args.checkpoint:
         print(f"Loading checkpoint: {args.checkpoint}")
         ckpt = torch.load(args.checkpoint, map_location=device, weights_only=False)
-        config = ckpt.get('config', full_config())
+
+        if 'config' not in ckpt:
+            print(f"Error: checkpoint '{args.checkpoint}' does not contain a "
+                  "'config' key. Cannot safely infer model architecture.\n"
+                  "Re-save the checkpoint with its AtlasConfig, or use "
+                  "--baseline to test a fresh model instead.")
+            sys.exit(1)
+
+        config = ckpt['config']
         model = AtlasMAGModel(config).to(device)
-        model.load_state_dict(ckpt['model'])
+
+        try:
+            model.load_state_dict(ckpt['model'])
+        except RuntimeError as e:
+            print(f"Error: state_dict mismatch loading '{args.checkpoint}'.\n"
+                  f"The saved weights do not match the model built from the "
+                  f"checkpoint's config.\n\nDetails:\n{e}")
+            sys.exit(1)
+
         total_params = sum(p.numel() for p in model.parameters())
         print(f"Config: {total_params/1e6:.1f}M params, step {ckpt.get('step', '?')}")
     else:

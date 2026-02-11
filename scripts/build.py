@@ -287,6 +287,12 @@ def run_build(args):
 
     # Model
     model = AtlasMAGModel(config).to(device)
+
+    if args.gradient_checkpoint:
+        model.enable_gradient_checkpointing()
+        if rank == 0:
+            print("Gradient checkpointing: enabled")
+
     if rank == 0:
         total_params = sum(p.numel() for p in model.parameters())
         print(f"Model: {total_params/1e6:.1f}M parameters")

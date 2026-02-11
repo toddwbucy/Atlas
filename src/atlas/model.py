@@ -15,6 +15,7 @@ CS-38: Build not train, test not eval.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.checkpoint import checkpoint as torch_checkpoint
 
 from .config import AtlasConfig
 from .blocks import MAGBlock
@@ -33,6 +34,7 @@ class AtlasMAGModel(nn.Module):
     def __init__(self, config: AtlasConfig):
         super().__init__()
         self.config = config
+        self._gradient_checkpointing = False
 
         # Token embedding — NO absolute positional embedding (impl-positional-encoding)
         self.token_emb = nn.Embedding(config.vocab_size, config.d_model)
@@ -68,6 +70,15 @@ class AtlasMAGModel(nn.Module):
             elif isinstance(module, nn.Embedding):
                 nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
+    def enable_gradient_checkpointing(self):
+        """Enable gradient checkpointing to trade compute for memory.
+
+        Re-computes block activations during backward instead of storing them.
+        Uses use_reentrant=False for compatibility with the inner-loop autograd
+        in AtlasMemory.
+        """
+        self._gradient_checkpointing = True
+
     def forward(
         self,
         input_ids: torch.Tensor,
@@ -89,7 +100,10 @@ class AtlasMAGModel(nn.Module):
 
         # Pass through MAG blocks
         for block in self.blocks:
-            x = block(x)
+            if self._gradient_checkpointing and x.requires_grad:
+                x = torch_checkpoint(block, x, use_reentrant=False)
+            else:
+                x = block(x)
 
         # Final norm + LM head
         x = self.final_norm(x)
