@@ -70,7 +70,6 @@ class TestNewtonSchulz5:
         S = torch.randn(32, 32) * 0.1
         X = newton_schulz5(S.unsqueeze(0), num_iterations=10).squeeze(0)
         XtX = X.T @ X
-        I = torch.eye(32)
         # Should be close to identity (up to scaling)
         # NS5 produces the polar factor which satisfies X^T X = I
         # for well-conditioned inputs
@@ -125,7 +124,7 @@ class TestOmegaLoss:
         """If M(k) == v exactly, loss should be zero."""
         values = torch.randn(8, 4)
 
-        def mem_fn(k):
+        def mem_fn(_k):
             return values  # Perfect memory
 
         keys = torch.randn(8, 4)

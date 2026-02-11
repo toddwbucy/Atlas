@@ -31,6 +31,10 @@ def polynomial_features(x: torch.Tensor, degree: int, coeffs: torch.Tensor) -> t
     Returns:
         Feature tensor [..., d_poly] where d_poly = d + d*(d+1)/2 for degree 2
     """
+    if degree not in (1, 2):
+        raise ValueError("polynomial_features only supports degree 1 or 2")
+    if coeffs.numel() < degree:
+        raise ValueError("coeffs must have at least `degree` elements")
     # Degree 1: scaled input
     features = [coeffs[0].abs().sqrt() * x]
 
@@ -78,10 +82,10 @@ def newton_schulz5(
         # X^T @ X: [..., n, n]
         XtX = X.transpose(-2, -1) @ X
         # a*I + b*X^T*X + c*(X^T*X)^2
-        I = torch.eye(XtX.shape[-1], device=XtX.device, dtype=XtX.dtype)
-        # Broadcast I to match batch dims
-        I = I.expand_as(XtX)
-        inner = a * I + b * XtX + c * (XtX @ XtX)
+        eye = torch.eye(XtX.shape[-1], device=XtX.device, dtype=XtX.dtype)
+        # Broadcast eye to match batch dims
+        eye = eye.expand_as(XtX)
+        inner = a * eye + b * XtX + c * (XtX @ XtX)
         X = X @ inner
 
     return X

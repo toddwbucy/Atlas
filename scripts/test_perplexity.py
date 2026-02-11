@@ -17,7 +17,7 @@ from atlas.config import AtlasConfig, tiny_config, full_config
 from atlas.model import AtlasMAGModel
 
 
-def measure_perplexity(model, data, config):
+def measure_perplexity(model, data):
     """Measure perplexity on data.
 
     CS-38: Named measure_perplexity, not evaluate.
@@ -25,7 +25,6 @@ def measure_perplexity(model, data, config):
     Args:
         model: AtlasMAGModel instance
         data: Token tensor [N, seq_len]
-        config: AtlasConfig
 
     Returns:
         Perplexity (float)
@@ -62,7 +61,7 @@ def test_model(args):
         config = tiny_config() if args.tiny else full_config()
         model = AtlasMAGModel(config).to(device)
         total_params = sum(p.numel() for p in model.parameters())
-        print(f"=== Baseline Test (random init) ===")
+        print("=== Baseline Test (random init) ===")
         print(f"Config: {'tiny' if args.tiny else 'full'} ({total_params/1e6:.1f}M params)")
     elif args.checkpoint:
         print(f"Loading checkpoint: {args.checkpoint}")
@@ -84,9 +83,9 @@ def test_model(args):
     data = torch.randint(0, config.vocab_size, (n_sequences, seq_len), device=device)
     total_tokens = n_sequences * (seq_len - 1)
 
-    ppl = measure_perplexity(model, data, config)
+    ppl = measure_perplexity(model, data)
 
-    print(f"\n=== Results ===")
+    print("\n=== Results ===")
     print(f"Perplexity: {ppl:.2f}")
     print(f"Tokens tested: {total_tokens:,}")
     print(f"Expected baseline PPL: ~{config.vocab_size:.0f} (random init, vocab_size)")
@@ -95,7 +94,7 @@ def test_model(args):
         # For random init, perplexity should be approximately vocab_size
         expected = config.vocab_size
         if ppl < expected * 2:
-            print(f"Baseline PPL within expected range.")
+            print("Baseline PPL within expected range.")
         else:
             print(f"WARNING: PPL {ppl:.2f} seems high vs expected ~{expected}")
 

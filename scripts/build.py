@@ -29,7 +29,7 @@ from atlas.config import AtlasConfig, tiny_config, full_config
 from atlas.model import AtlasMAGModel
 
 
-def probe_invariants(model, step):
+def probe_invariants(model, _step):
     """Probe architectural invariants during build (CS-30, CS-32).
 
     CS-30: Harmony is testable — verify gradient/state properties.
@@ -278,12 +278,12 @@ def run_build(args):
             config.batch_size_tokens = args.batch_size
         total_steps = args.max_steps
         if rank == 0:
-            print(f"=== Atlas-MAG Build ===")
-            print(f"Dataset: FineWeb-Edu (streaming)")
+            print("=== Atlas-MAG Build ===")
+            print("Dataset: FineWeb-Edu (streaming)")
             print(f"Context length: {config.context_length}")
             print(f"Batch size: {config.batch_size_tokens:,} tokens")
             if args.bf16:
-                print(f"Mixed precision: BF16")
+                print("Mixed precision: BF16")
 
     # Model
     model = AtlasMAGModel(config).to(device)
@@ -367,7 +367,7 @@ def run_build(args):
 
         # CS-32: Probe function captures gradients BEFORE optimizer.zero_grad()
         should_probe = (rank == 0) and (step % probe_every == 0)
-        probe_fn = (lambda: probe_invariants(model, step)) if should_probe else None
+        probe_fn = (lambda _step=step: probe_invariants(model, _step)) if should_probe else None
 
         loss, probe_result = build_step(model, micro_batches, optimizer,
                                         len(micro_batches), use_amp=args.bf16,

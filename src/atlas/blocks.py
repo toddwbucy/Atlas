@@ -125,9 +125,9 @@ class MAGBlock(nn.Module):
         v = self.conv_v(v.transpose(1, 2))[..., :T].transpose(1, 2)
 
         # Reshape to per-head: [B, T, H, d]
-        q = q.view(B, T, H, d)
-        k = k.view(B, T, H, d)
-        v = v.view(B, T, H, d)
+        q = q.reshape(B, T, H, d)
+        k = k.reshape(B, T, H, d)
+        v = v.reshape(B, T, H, d)
 
         # Step 2: Normalize Q, K (per-head RMSNorm)
         q = self.q_norm(q)

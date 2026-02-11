@@ -46,6 +46,10 @@ class AtlasMemory(nn.Module):
         self.k = k
         self.spl = m // k  # slots per level
         self.cadences = list(config.cms_cadences[:k])
+        if len(self.cadences) != k:
+            raise ValueError("cms_cadences must provide at least cms_levels entries")
+        if any(c <= 0 for c in self.cadences):
+            raise ValueError("cms_cadences must be positive non-zero integers")
 
         # Per-level initial states on unit sphere (outer loop parameters)
         S_inits = []

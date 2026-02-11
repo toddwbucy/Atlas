@@ -8,11 +8,16 @@ from .blocks import MAGBlock
 from .primitives import polynomial_features, newton_schulz5, omega_loss, lattice_update, lattice_readout
 
 __all__ = [
-    'AtlasConfig', 'tiny_config', 'full_config',
+    'AtlasConfig',
     'AtlasMAGModel',
     'AtlasMemory',
-    'SlidingWindowAttention',
     'MAGBlock',
-    'polynomial_features', 'newton_schulz5', 'omega_loss',
-    'lattice_update', 'lattice_readout',
+    'SlidingWindowAttention',
+    'full_config',
+    'lattice_readout',
+    'lattice_update',
+    'newton_schulz5',
+    'omega_loss',
+    'polynomial_features',
+    'tiny_config',
 ]

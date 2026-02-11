@@ -29,6 +29,8 @@ class SlidingWindowAttention(nn.Module):
         super().__init__()
         self.config = config
         d = config.head_dim
+        if d % 2 != 0:
+            raise ValueError("head_dim must be even for RoPE")
 
         # Pre-compute RoPE frequencies (impl-positional-encoding)
         # theta_i = 10000^(-2i/d) for i in [0, d/2)

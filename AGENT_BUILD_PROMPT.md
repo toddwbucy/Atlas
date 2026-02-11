@@ -81,7 +81,7 @@ These collections contain the Atlas specification:
 Build the MAG variant with these parameters:
 
 ### Full Config (~54M parameters)
-```
+```text
 d_model = 768
 n_heads = 12
 head_dim = 64  (d_model / n_heads)
@@ -95,7 +95,7 @@ swa_window_size = 512
 ```
 
 ### Tiny Config (for CPU testing, under 1 second)
-```
+```text
 d_model = 64
 n_heads = 4
 head_dim = 16
@@ -112,7 +112,7 @@ swa_window_size = 16
 
 Write all code under /home/todd/testing/atlas/:
 
-```
+```text
 atlas/
   src/atlas/
     __init__.py           # Exports
@@ -307,7 +307,7 @@ If after thorough graph queries you still cannot find something you need, **you 
 
 **Emit this exact format:**
 
-```
+```text
 🔴 GRAPH GAP ALERT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 WHAT I NEED:    [what you're looking for]
@@ -569,7 +569,7 @@ When GPU execution fails — OOM, NaN loss, CUDA errors, shape mismatches, or an
 
 ### Recovery Protocol
 
-```
+```text
 FAILURE DETECTED
     │
     ▼
