@@ -103,12 +103,6 @@ The code was generated from graph-derived pseudocode, organized in dependency or
 | 3 | Parallelization | Chunkwise training algorithms | Eqs 15-16, 34-41 |
 | 4 | Compositions | How memory integrates with attention | Eqs 17-18, SWA-Omega duality |
 
-## How This Was Built
-
-The `AGENT_BUILD_PROMPT.md` file is the prompt that was given to a sandboxed AI agent to build this implementation. The agent's only source of truth was the HADES knowledge graph containing 60 equations, 9 definitions, and 43 abstractions extracted from the Atlas paper. No reference implementations were consulted. The graph generated the code — one-way flow.
-
-This is an exhibit for the methodology described in our article on graph-driven paper-to-code development.
-
 ## Cross-Paper Context
 
 Atlas is part of a larger research program from the Mirrokni group:
